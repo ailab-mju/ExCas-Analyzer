@@ -4,9 +4,6 @@ Quantifies CRISPR-induced **large deletions** from paired-end amplicon sequencin
 comparing a Cas9-treated sample against an untreated control. Deletion breakpoints are
 clustered, and clusters that also occur in the control are removed as false positives.
 
-Method: Hwang, Lee, Oh et al., *Nat. Biomed. Eng.* **9**, 79–92 (2025).
-doi:[10.1038/s41551-024-01277-5](https://doi.org/10.1038/s41551-024-01277-5)
-
 One source tree builds two front-ends over the same core:
 
 | | | |

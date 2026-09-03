@@ -1,5 +1,7 @@
 # build outputs
 build/
+web/web/static/webtest-core.js
+web/web/static/webtest-core.wasm
 *.o
 kmer_align2
 
