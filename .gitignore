@@ -1,0 +1,31 @@
+# build outputs
+build/
+*.o
+kmer_align2
+
+# generated example data for the web demo (regenerate with web/make_examples.sh)
+web/web/static/testdata/ST3GAL4/
+web/web/static/testdata/WISP3/
+web/web/static/testdata/*_example.zip
+web/web/static/result_dir/*.sam
+
+# django dev leftovers
+__pycache__/
+*.pyc
+db.sqlite3
+
+# editor
+.*.swp
+
+# legacy build artifacts (sources under legacy/ are kept)
+legacy/web_em/webtest-core.js
+legacy/web_em/kmer_align
+legacy/web_em/t1/
+legacy/web_em/res_1
+
+# the previous repository's history, kept aside locally
+.git.orig/
+
+# accidental copies left in the legacy tree (cp without a destination)
+legacy/web_em/\\
+legacy/web_em/1

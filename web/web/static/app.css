@@ -1,0 +1,88 @@
+/* Form layout follows Cas-Analyzer (RGEN Tools). Self-contained — no CDN dependency. */
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:#333;
+  font-family:"Helvetica Neue",Helvetica,Arial,"Segoe UI",sans-serif;
+  font-size:14px;line-height:1.42857143}
+.container{max-width:1100px;margin:0 auto;padding:0 15px 60px}
+.page-header{border-bottom:1px solid #eee;margin:24px 0 20px;padding-bottom:9px}
+.page-header h2{margin:0 0 6px;font-size:30px;font-weight:500;color:#333}
+.page-header h4{margin:0;font-size:15px;font-weight:400;color:#777;line-height:1.5}
+.page-header .src{margin-top:8px;font-size:12px;color:#999}
+
+fieldset{border:1px solid #e3e3e3;border-radius:4px;background:#f5f5f5;
+  padding:14px 18px 18px;margin:0 0 18px;min-width:0}
+legend{width:auto;padding:0 8px;margin:0;font-size:16px;font-weight:600;color:#333;border:0}
+.row{display:flex;flex-wrap:wrap;gap:0 18px;margin:0 -9px}
+.col{flex:1 1 260px;min-width:0;padding:0 9px}
+.col-full{flex:1 1 100%;min-width:0;padding:0 9px}
+.form-group{margin-bottom:14px}
+label.control-label{display:block;margin-bottom:5px;font-weight:600;font-size:13px;color:#333}
+label.control-label .sub{font-weight:400;color:#777}
+input[type=text],input[type=number],textarea,select{
+  display:block;width:100%;padding:6px 10px;font-size:13px;line-height:1.42857143;
+  color:#555;background:#fff;border:1px solid #ccc;border-radius:4px;font-family:inherit}
+textarea{resize:vertical}
+textarea.seq,input.seq{font-family:"Consolas","DejaVu Sans Mono",Menlo,monospace;font-size:12.5px;letter-spacing:.02em}
+input[type=file]{display:block;width:100%;font-size:13px;padding:5px 0}
+input:focus,textarea:focus,select:focus{border-color:#66afe9;outline:0;
+  box-shadow:inset 0 1px 1px rgba(0,0,0,.075),0 0 6px rgba(102,175,233,.6)}
+input:disabled,select:disabled{background:#eee;cursor:not-allowed}
+.help-block{margin:5px 0 0;font-size:12px;color:#888}
+.sample-head{font-size:13px;font-weight:600;color:#31708f;margin:0 0 8px;
+  padding-bottom:5px;border-bottom:1px solid #dcdcdc}
+
+.btn{display:inline-block;padding:7px 16px;margin:0 6px 0 0;font-size:14px;font-weight:400;
+  line-height:1.42857143;text-align:center;border:1px solid transparent;border-radius:4px;
+  cursor:pointer;font-family:inherit;background:#fff}
+.btn-primary{color:#fff;background:#337ab7;border-color:#2e6da4}
+.btn-primary:hover{background:#286090;border-color:#204d74}
+.btn-normal{color:#333;background:#fff;border-color:#ccc}
+.btn-normal:hover{background:#e6e6e6;border-color:#adadad}
+.btn-sm{padding:4px 10px;font-size:12px}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+
+.alert{padding:10px 14px;margin:0 0 14px;border:1px solid transparent;border-radius:4px;font-size:13px}
+.alert-danger{color:#a94442;background:#f2dede;border-color:#ebccd1}
+.alert-info{color:#31708f;background:#d9edf7;border-color:#bce8f1}
+
+table.table{width:100%;border-collapse:collapse;margin-bottom:14px;background:#fff;font-size:13px}
+table.table th,table.table td{padding:8px 10px;border:1px solid #ddd;vertical-align:middle}
+table.table th{background:#f0f0f0;font-weight:600;text-align:center}
+table.table td{text-align:center}
+table.table td.left{text-align:left}
+table.table tbody tr:nth-child(odd){background:#f9f9f9}
+.num{font-family:"Consolas","DejaVu Sans Mono",monospace;font-variant-numeric:tabular-nums}
+
+.progress{height:22px;margin-bottom:10px;overflow:hidden;background:#f5f5f5;border-radius:4px;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.1)}
+.progress-bar{float:left;width:0;height:100%;font-size:12px;line-height:22px;color:#fff;
+  text-align:center;background:#5bc0de;transition:width .25s ease;
+  background-image:linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
+  background-size:40px 40px}
+.progress-bar.done{background-color:#5cb85c}
+.progress-label{font-size:12px;font-weight:600;color:#555;margin-bottom:4px}
+
+.seqbox{font-family:"Consolas","DejaVu Sans Mono",monospace;font-size:12.5px;line-height:1.9;
+  word-break:break-all;background:#fff;border:1px solid #ddd;border-radius:4px;padding:10px}
+.seqbox .tgt{background:#c9e7c9;color:#1a6e2e;font-weight:700}
+.seqbox .pam{background:#ffe08a;color:#8a6112;font-weight:700}
+.seqbox .cut{color:#c9302c;font-weight:700}
+.legend-key{font-size:12px;color:#777;margin-top:6px}
+.legend-key i{font-style:normal;padding:1px 5px;border-radius:2px;margin-right:4px}
+
+.hidden{display:none}
+.section{margin-bottom:22px}
+.section > legend{margin-bottom:12px}
+@media (max-width:700px){ .row{display:block} .col,.col-full{padding:0} }
+
+/* ---------- example data panel ---------- */
+.well{background:#f5f5f5;border:1px solid #e3e3e3;border-radius:4px;padding:14px 18px;margin:0 0 18px}
+.well h5{margin:0 0 6px;font-size:14px;font-weight:600;color:#333}
+.well p{margin:0 0 10px;font-size:13px;color:#666}
+.dl-list{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px}
+.dl-list .lbl{font-size:12px;font-weight:600;color:#777;margin-right:2px}
+a.dl{display:inline-block;padding:3px 9px;font-size:12px;color:#337ab7;background:#fff;
+  border:1px solid #ccc;border-radius:3px;text-decoration:none;font-family:"Consolas","DejaVu Sans Mono",monospace}
+a.dl:hover{background:#337ab7;border-color:#2e6da4;color:#fff}
+a.dl .sz{color:#999;font-size:11px;margin-left:5px}
+a.dl:hover .sz{color:#dbe9f5}

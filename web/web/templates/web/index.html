@@ -1,0 +1,269 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ExCas-Analyzer</title>
+<link rel="stylesheet" href="{% static 'app.css' %}">
+</head>
+<body>
+<div class="container">
+
+  <div class="page-header">
+    <h2>ExCas-Analyzer</h2>
+    <h4>A browser-based tool for quantifying CRISPR-induced large deletions from paired-end amplicon sequencing.
+        Your sequencing files never leave the machine &mdash; a WebAssembly module inside a Web Worker does all the work.</h4>
+    <div class="src">Input format follows <a href="http://www.rgenome.net/cas-analyzer/" target="_blank" rel="noopener">Cas-Analyzer (RGEN Tools)</a>.</div>
+  </div>
+
+  <div id="err" class="alert alert-danger hidden"></div>
+
+  <!-- ===== Example data ===== -->
+  <div class="well">
+    <h5>Example data</h5>
+    <p>Three published targets, all SpCas9 (5'-NGG-3') on the minus strand. Download the files to try the
+       form yourself, or load a set straight into the analyzer.</p>
+    <div class="tablewrap" style="box-shadow:none">
+      <table class="table" style="margin-bottom:10px">
+        <thead><tr>
+          <th style="text-align:left">Target</th><th>Target DNA sequence</th><th>Read pairs</th>
+          <th style="text-align:left">Files</th><th></th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td class="left"><b>HPRT1</b><br><span class="sub" style="color:#777;font-size:12px">HEK293T &middot; 4652&ndash;4671</span></td>
+            <td class="num" style="font-size:12px">GCCCCCCTTGAGCACACAGA</td>
+            <td class="num">2,500</td>
+            <td class="left">
+              <a class="dl" href="{% static 'testdata/HPRT1/HPRT1.fa' %}" download>ref</a>
+              <a class="dl" href="{% static 'testdata/HPRT1/HPRT1_con_1.fastq' %}" download>con_1</a>
+              <a class="dl" href="{% static 'testdata/HPRT1/HPRT1_con_2.fastq' %}" download>con_2</a>
+              <a class="dl" href="{% static 'testdata/HPRT1/HPRT1_mut_1.fastq' %}" download>mut_1</a>
+              <a class="dl" href="{% static 'testdata/HPRT1/HPRT1_mut_2.fastq' %}" download>mut_2</a>
+              <a class="dl" href="{% static 'testdata/HPRT1_example.zip' %}" download>zip 497 KB</a>
+            </td>
+            <td><button class="btn btn-primary btn-sm ex" data-gene="HPRT1" data-sample="HEK293T"
+                        data-target="GCCCCCCTTGAGCACACAGA">Load and run</button></td>
+          </tr>
+          <tr>
+            <td class="left"><b>ST3GAL4</b><br><span class="sub" style="color:#777;font-size:12px">HEK293T &middot; 4344&ndash;4363</span></td>
+            <td class="num" style="font-size:12px">CGTTCCCCACGACCACACAG</td>
+            <td class="num">10,000</td>
+            <td class="left">
+              <a class="dl" href="{% static 'testdata/ST3GAL4/ST3GAL4.fa' %}" download>ref</a>
+              <a class="dl" href="{% static 'testdata/ST3GAL4/ST3GAL4_con_1.fastq' %}" download>con_1</a>
+              <a class="dl" href="{% static 'testdata/ST3GAL4/ST3GAL4_con_2.fastq' %}" download>con_2</a>
+              <a class="dl" href="{% static 'testdata/ST3GAL4/ST3GAL4_mut_1.fastq' %}" download>mut_1</a>
+              <a class="dl" href="{% static 'testdata/ST3GAL4/ST3GAL4_mut_2.fastq' %}" download>mut_2</a>
+              <a class="dl" href="{% static 'testdata/ST3GAL4_example.zip' %}" download>zip 2.3 MB</a>
+            </td>
+            <td><button class="btn btn-primary btn-sm ex" data-gene="ST3GAL4" data-sample="HEK293T"
+                        data-target="CGTTCCCCACGACCACACAG">Load and run</button></td>
+          </tr>
+          <tr>
+            <td class="left"><b>WISP3</b><br><span class="sub" style="color:#777;font-size:12px">HEK293T &middot; 5054&ndash;5073</span></td>
+            <td class="num" style="font-size:12px">CTCACTCCAGGAGGGCAACG</td>
+            <td class="num">10,000</td>
+            <td class="left">
+              <a class="dl" href="{% static 'testdata/WISP3/WISP3.fa' %}" download>ref</a>
+              <a class="dl" href="{% static 'testdata/WISP3/WISP3_con_1.fastq' %}" download>con_1</a>
+              <a class="dl" href="{% static 'testdata/WISP3/WISP3_con_2.fastq' %}" download>con_2</a>
+              <a class="dl" href="{% static 'testdata/WISP3/WISP3_mut_1.fastq' %}" download>mut_1</a>
+              <a class="dl" href="{% static 'testdata/WISP3/WISP3_mut_2.fastq' %}" download>mut_2</a>
+              <a class="dl" href="{% static 'testdata/WISP3_example.zip' %}" download>zip 2.3 MB</a>
+            </td>
+            <td><button class="btn btn-primary btn-sm ex" data-gene="WISP3" data-sample="HEK293T"
+                        data-target="CTCACTCCAGGAGGGCAACG">Load and run</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="help-block" id="demo-note" style="margin:0"></p>
+  </div>
+
+  <!-- ===== 1. Sequencing Data ===== -->
+  <fieldset>
+    <legend>Sequencing Data</legend>
+
+    <div class="form-group" style="max-width:420px">
+      <label class="control-label" for="optfile">File Type:</label>
+      <select id="optfile">
+        <option value="0">Paired-end reads</option>
+        <option value="1" disabled>Single-end read or fastq-joined file (not supported)</option>
+      </select>
+      <p class="help-block">ExCas-Analyzer compares a treated sample against an untreated control, so four paired-end files are required.</p>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <p class="sample-head">Control sample (untreated)</p>
+        <div class="form-group">
+          <label class="control-label" for="file2">Read 1 <span class="sub">(fastq)</span></label>
+          <input type="file" id="file2" accept=".fastq,.fq,.txt">
+        </div>
+        <div class="form-group">
+          <label class="control-label" for="file3">Read 2 <span class="sub">(fastq)</span></label>
+          <input type="file" id="file3" accept=".fastq,.fq,.txt">
+        </div>
+      </div>
+      <div class="col">
+        <p class="sample-head">Cas9-treated sample</p>
+        <div class="form-group">
+          <label class="control-label" for="file4">Read 1 <span class="sub">(fastq)</span></label>
+          <input type="file" id="file4" accept=".fastq,.fq,.txt">
+        </div>
+        <div class="form-group">
+          <label class="control-label" for="file5">Read 2 <span class="sub">(fastq)</span></label>
+          <input type="file" id="file5" accept=".fastq,.fq,.txt">
+        </div>
+      </div>
+    </div>
+    <p class="help-block">Gzipped files are not supported yet &mdash; please decompress before uploading.</p>
+  </fieldset>
+
+  <!-- ===== 2. Basic Information ===== -->
+  <fieldset>
+    <legend>Basic Information</legend>
+
+    <div class="form-group">
+      <label class="control-label" for="fullseq">Full reference sequence (5' to 3'):</label>
+      <textarea id="fullseq" class="seq" rows="4" spellcheck="false"
+        placeholder="Paste the reference sequence containing the target site. FASTA headers (&gt;) and line breaks are stripped automatically."></textarea>
+      <p class="help-block">
+        To detect large deletions, include several kb on both sides of the cleavage site.
+        Or upload a FASTA file: <input type="file" id="reffile" accept=".fa,.fasta,.fna,.txt" style="display:inline-block;width:auto">
+        <span id="reflen"></span>
+      </p>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <div class="form-group">
+          <label class="control-label" for="pams">Select PAM:</label>
+          <select id="pams">
+            <option value="NGG"    data-side="3" data-cut="3"  selected>SpCas9 from Streptococcus pyogenes: 5'-NGG-3'</option>
+            <option value="NGT"    data-side="3" data-cut="3">xCas9 from Streptococcus pyogenes: 5'-NGT-3'</option>
+            <option value="NGAG"   data-side="3" data-cut="3">SpCas9-EQR from Streptococcus pyogenes: 5'-NGAG-3'</option>
+            <option value="NNGRRT" data-side="3" data-cut="3">SaCas9 from Staphylococcus aureus: 5'-NNGRRT-3'</option>
+            <option value="NNAGAAW" data-side="3" data-cut="3">StCas9 from Streptococcus thermophilus: 5'-NNAGAAW-3'</option>
+            <option value="TTTV"   data-side="5" data-cut="18">AsCpf1 / LbCpf1: 5'-TTTV-3' (staggered cut)</option>
+            <option value=""       data-side="0" data-cut="">No PAM &mdash; set the cleavage offset manually</option>
+          </select>
+          <p class="help-block">The PAM is used only to locate the target and derive the cleavage site.</p>
+        </div>
+      </div>
+      <div class="col">
+        <div class="form-group">
+          <label class="control-label" for="rgenseq">Target DNA sequence <span class="sub">(5' to 3', without PAM sequence)</span></label>
+          <input type="text" id="rgenseq" class="seq" spellcheck="false" placeholder="e.g. GCCCCCCTTGAGCACACAGA">
+          <p class="help-block">Both strands of the reference are searched; coordinates and the cleavage site are derived automatically.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <div class="form-group">
+          <label class="control-label" for="genename">Gene name</label>
+          <input type="text" id="genename" value="HPRT1">
+          <p class="help-block">Used as the SAM reference name and in the output file names.</p>
+        </div>
+      </div>
+      <div class="col">
+        <div class="form-group">
+          <label class="control-label" for="samplename">Sample name</label>
+          <input type="text" id="samplename" value="HEK293T">
+        </div>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- ===== 3. Analysis Parameters ===== -->
+  <fieldset>
+    <legend>Analysis Parameters</legend>
+    <div class="row">
+      <div class="col">
+        <div class="form-group">
+          <label class="control-label" for="K">k-mer size (K)</label>
+          <input type="number" id="K" value="11" min="7" max="16">
+          <p class="help-block">k-mer length used to index the reference. The published setting is 11.</p>
+        </div>
+      </div>
+      <div class="col">
+        <div class="form-group">
+          <label class="control-label" for="cle">Cleavage offset <span class="sub">(from the target start)</span></label>
+          <input type="number" id="cle" placeholder="auto">
+          <p class="help-block">Leave blank to derive it from the PAM and strand.</p>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="submit">Submit</button>
+  </fieldset>
+
+  <!-- ===== Input Summary ===== -->
+  <fieldset id="summary-box" class="hidden">
+    <legend>Input Summary</legend>
+    <div class="form-group">
+      <label class="control-label">Reference sequence around the target site</label>
+      <div class="seqbox" id="seqctx"></div>
+      <div class="legend-key">
+        <i class="tgt" style="background:#c9e7c9;color:#1a6e2e">target</i>
+        <i class="pam" style="background:#ffe08a;color:#8a6112">PAM</i>
+        <i class="cut" style="color:#c9302c">&#9660; cleavage site</i>
+      </div>
+    </div>
+    <table class="table">
+      <thead><tr>
+        <th>Reference length</th><th>Target position</th><th>Strand</th>
+        <th>PAM</th><th>Cleavage site</th><th>K</th>
+      </tr></thead>
+      <tbody><tr>
+        <td class="num" id="s-reflen"></td><td class="num" id="s-pos"></td><td id="s-strand"></td>
+        <td class="num" id="s-pam"></td><td class="num" id="s-cut"></td><td class="num" id="s-k"></td>
+      </tr></tbody>
+    </table>
+  </fieldset>
+
+  <!-- ===== Progress ===== -->
+  <fieldset id="progress-box" class="hidden">
+    <legend>Progress</legend>
+    <div class="progress-label">Control sample</div>
+    <div class="progress"><div class="progress-bar" id="ctr-bar">0%</div></div>
+    <div class="progress-label">Cas9-treated sample</div>
+    <div class="progress"><div class="progress-bar" id="mut-bar">0%</div></div>
+    <div id="stage" class="help-block"></div>
+  </fieldset>
+
+  <!-- ===== Result ===== -->
+  <fieldset id="result-box" class="hidden">
+    <legend>Result Summary</legend>
+    <table class="table">
+      <thead><tr>
+        <th>Sample</th><th>Alignment rate</th>
+        <th>Large deletion rate</th><th>Small indel rate</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="left">Control</td>
+            <td class="num" id="r-ctr-align">&ndash;</td><td class="num" id="r-ctr-ld">&ndash;</td><td class="num" id="r-ctr-si">&ndash;</td></tr>
+        <tr><td class="left">Cas9-treated</td>
+            <td class="num" id="r-mut-align">&ndash;</td><td class="num" id="r-mut-ld">&ndash;</td><td class="num" id="r-mut-si">&ndash;</td></tr>
+      </tbody>
+    </table>
+    <p class="help-block">The control large deletion rate is the false-positive baseline. The treated value is computed after removing deletion clusters that also occur in the control.</p>
+
+    <div id="download-box" class="hidden" style="margin-top:14px">
+      <label class="control-label">Split reads (SAM, sorted by position)</label>
+      <a id="dl-ctr-only" class="btn btn-normal btn-sm" href="#">ctr_only</a>
+      <a id="dl-ctr-com"  class="btn btn-normal btn-sm" href="#">ctr_com</a>
+      <a id="dl-mut-only" class="btn btn-normal btn-sm" href="#">mut_only</a>
+      <a id="dl-mut-com"  class="btn btn-normal btn-sm" href="#">mut_com</a>
+      <p class="help-block" id="dl-note"></p>
+    </div>
+  </fieldset>
+
+</div>
+
+<script src="{% static 'interface.js' %}"></script>
+</body>
+</html>

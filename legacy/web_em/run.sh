@@ -1,0 +1,2 @@
+#./kmer_align ../../ref/HPRT1.fa ../../data/all_data/test_con_1.fastq ../../data/all_data/test_con_2.fastq ../../data/all_data/test_mut_1.fastq ../../data/all_data/test_mut_2.fastq 4652 4671 3 HPRT1 HEK293T 11 t1
+./kmer_align ../../ref/HPRT1.fa ../../data/all_data/HEK293T_HPRT1_con_1st_1.fastq ../../data/all_data/HEK293T_HPRT1_con_1st_2.fastq ../../data/all_data/HEK293T_HPRT1_1st_1.fastq ../../data/all_data/HEK293T_HPRT1_1st_2.fastq 4652 4671 3 HPRT1 HEK293T 11 t1
