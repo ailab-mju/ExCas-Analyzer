@@ -1,19 +1,9 @@
-#ifndef EXCAS_ALIGN_WRAP_H
-#define EXCAS_ALIGN_WRAP_H
-#include <vector>
-#include "arg_parse.h"
-#include "sink.h"
-#include "func.h"
-
-/* one sample only; which = 0 (control) or 1 (Cas9-treated) */
-bool align_sample(Args &a, int which, Sink &sink, Progress &prog,
-                  result &res_out, std::vector<read> *split_out);
-void report_sample(result &r, long long only, Progress &prog);
-
+#include<string>
 class align_wrap
 {
 	public:
+	/* 0 = ran to completion, 1 = bad arguments (usage was printed). */
+	int status;
 	~align_wrap();
-	align_wrap(Args &a, Sink &sink, Progress &prog);
+	align_wrap(char *argv[]);
 };
-#endif

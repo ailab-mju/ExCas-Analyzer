@@ -1,0 +1,3 @@
+@HD	VN:1.6	SO:coordinate
+@SQ	SN:TRAC	LN:5899
+@PG	ID:kmer_align	PN:CRISPR-LargeDel	CL:./kmer_align test_data/TRAC.fa test_data/TRAC_SIM_ctr_1.fastq test_data/TRAC_SIM_ctr_2.fastq test_data/TRAC_SIM_mut_1.fastq test_data/TRAC_SIM_mut_2.fastq 2952 2971 17 TRAC SIM 11 /tmp/tmp.C85j0pHWle --out_fmt sam --report 0

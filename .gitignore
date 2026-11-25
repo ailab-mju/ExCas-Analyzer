@@ -1,17 +1,13 @@
 # build outputs
 build/
-web/web/static/webtest-core.js
-web/web/static/webtest-core.wasm
+kmer_align
 *.o
-kmer_align2
+.hts_probe.cc
 
-# generated example data for the web demo (regenerate with web/make_examples.sh)
-web/web/static/testdata/ST3GAL4/
-web/web/static/testdata/WISP3/
-web/web/static/testdata/*_example.zip
-web/web/static/result_dir/*.sam
+# written by run_kmer_align.sh
+result/
 
-# django dev leftovers
+# python / django leftovers
 __pycache__/
 *.pyc
 db.sqlite3
@@ -24,6 +20,12 @@ legacy/web_em/webtest-core.js
 legacy/web_em/kmer_align
 legacy/web_em/t1/
 legacy/web_em/res_1
+legacy/web_django/web/static/webtest-core.js
+legacy/web_django/web/static/webtest-core.wasm
+legacy/web_django/web/static/testdata/ST3GAL4/
+legacy/web_django/web/static/testdata/WISP3/
+legacy/web_django/web/static/testdata/*_example.zip
+legacy/web_django/web/static/result_dir/*.sam
 
 # the previous repository's history, kept aside locally
 .git.orig/

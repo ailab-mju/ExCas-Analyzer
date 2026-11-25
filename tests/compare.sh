@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 # compare.sh <dirA> <dirB> [labelA] [labelB]
-# Byte-compares every SAM stream in two output directories.
+# Byte-compares every SAM stream in two output directories (streams missing
+# from BOTH directories are skipped, so a partial golden set is fine).
 # A mismatch that disappears once the YC:Z cluster-colour tag is stripped is
 # reported separately: that tag is a display colour whose index depends on the
 # order k-means happens to number its centroids, which differs between the
 # native and wasm floating-point paths. It carries no analysis result.
 A=$1; B=$2; LA=${3:-A}; LB=${4:-B}
 ok=0; ng=0; colour=0
-for f in ctr mut ctr_only ctr_common mut_only mut_common site_ctr site_mut site_ctr_sm site_mut_sm; do
+for f in ctr mut ctr_only ctr_common mut_only mut_common site_ctr site_mut site_ctr_sm site_mut_sm site_ctr_clip site_mut_clip; do
   a=$(ls "$A"/*_"$f".sam 2>/dev/null | head -1); b=$(ls "$B"/*_"$f".sam 2>/dev/null | head -1)
-  [ -n "$a" ] && sort -k4n "$a" > /tmp/cmp_a || : > /tmp/cmp_a
-  [ -n "$b" ] && sort -k4n "$b" > /tmp/cmp_b || : > /tmp/cmp_b
+  # the @PG header line carries the command line, including the output directory
+  [ -n "$a" ] && grep -v '^@PG' "$a" | sort -k4n > /tmp/cmp_a || : > /tmp/cmp_a
+  [ -n "$b" ] && grep -v '^@PG' "$b" | sort -k4n > /tmp/cmp_b || : > /tmp/cmp_b
   na=$(wc -l < /tmp/cmp_a); nb=$(wc -l < /tmp/cmp_b)
   [ "$na" = "0" ] && [ "$nb" = "0" ] && continue
   if diff -q /tmp/cmp_a /tmp/cmp_b >/dev/null; then

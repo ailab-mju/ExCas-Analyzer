@@ -73,48 +73,63 @@ std::vector<std::array<T, N> > random_plusplus(const std::vector<std::array<T, N
 	assert(data.size() > 0);
 	using input_size_t = typename std::array<T, N>::size_type;
 	std::vector<std::array<T, N> > means;
-	// The clustering used to depend on which standard library built the binary, in
-	// two separate ways:
-	//   1. std::linear_congruential_engine was given a modulus of UINT64_MAX
-	//      (2^64-1). These constants (Knuth MMIX) are specified for 2^64, and a
-	//      2^64-1 modulus forces exact 128-bit modular arithmetic that libstdc++
-	//      and libc++ implement differently -- they disagree from the first draw.
-	//   2. The standard does not specify how uniform_int_distribution and
-	//      discrete_distribution turn engine output into values.
-	// Both are replaced here with arithmetic that is fully defined by the language:
-	// unsigned wraparound (the modulus the constants were chosen for) and explicit
-	// scaling. Same sequence, same clusters, on every toolchain.
-	uint64_t rng_state = 22388974ULL;
-	auto next_u64 = [&rng_state]() -> uint64_t {
-		rng_state = rng_state * 6364136223846793005ULL + 1442695040888963407ULL;
-		return rng_state;
+	// Using a very simple PRBS generator, parameters selected according to
+	// https://en.wikipedia.org/wiki/Linear_congruential_generator#Parameters_in_common_use
+	/* PORTABILITY FIX (2/2).
+	   The original used
+	     std::linear_congruential_engine<uint64_t, 6364136223846793005,
+	                                     1442695040888963407, UINT64_MAX>
+	   whose modulus is 2^64-1, NOT 2^64.  With that modulus a*x overflows 64
+	   bits, and libstdc++ and libc++ reduce it differently, so the very same
+	   seed produced different draws on native (libstdc++) and wasm (libc++) -
+	   which showed up as a different number of clusters.  The recurrence is
+	   written out here with the natural 2^64 wraparound, which is fully
+	   specified and identical on every platform.  Seed unchanged. */
+	uint64_t rand_state = 22388974ULL;
+	auto rand_engine = [&rand_state]() -> uint64_t {
+		rand_state = rand_state * 6364136223846793005ULL + 1442695040888963407ULL;
+		return rand_state;
 	};
-	auto next_unit = [&next_u64]() -> double {              // uniform in [0,1)
-		return static_cast<double>(next_u64() >> 11) * (1.0 / 9007199254740992.0);
-	};
-	auto next_index = [&next_unit](input_size_t n) -> input_size_t {
-		input_size_t i = static_cast<input_size_t>(next_unit() * static_cast<double>(n));
-		return (i >= n) ? n - 1 : i;
+
+	/* PORTABILITY FIX.
+	   std::uniform_int_distribution and std::discrete_distribution are not
+	   specified to produce the same sequence across standard library
+	   implementations.  libstdc++ (native g++) and libc++ (Emscripten/wasm)
+	   disagree, so the same seed picked different initial centroids and the
+	   cluster assignment - and therefore the YC colour tags, and in principle
+	   the control/treated cluster matching itself - differed by platform.
+	   Sampling is done here with plain arithmetic so the result depends only
+	   on the engine, which IS specified. */
+	auto canonical = [&rand_engine]() -> double {
+		/* 53 bits of the engine output mapped to [0,1) - exact in IEEE754 */
+		return static_cast<double>(rand_engine() >> 11) / 9007199254740992.0;
 	};
 
 	// Select first mean at random from the set
-	means.push_back(data[next_index(data.size())]);
+	{
+		input_size_t idx = static_cast<input_size_t>(canonical() * static_cast<double>(data.size()));
+		if (idx >= data.size()) { idx = data.size() - 1; }
+		means.push_back(data[idx]);
+	}
 
 	for (uint32_t count = 1; count < k; ++count) {
 		// Calculate the distance to the closest mean for each data point
 		auto distances = details::closest_distance(means, data);
 		// Pick a random point weighted by the distance from existing means
+		// (inverse-CDF sampling; equivalent in intent to discrete_distribution)
 		double total = 0.0;
-		for (size_t i = 0; i < distances.size(); ++i) total += static_cast<double>(distances[i]);
-		input_size_t pick = distances.size() - 1;
+		for (size_t i = 0; i < distances.size(); ++i) { total += static_cast<double>(distances[i]); }
+		input_size_t pick = 0;
 		if (total > 0.0) {
-			double target = next_unit() * total, acc = 0.0;
+			double target = canonical() * total, acc = 0.0;
 			for (size_t i = 0; i < distances.size(); ++i) {
 				acc += static_cast<double>(distances[i]);
-				if (target < acc) { pick = static_cast<input_size_t>(i); break; }
+				if (acc > target) { pick = static_cast<input_size_t>(i); break; }
+				pick = static_cast<input_size_t>(i);
 			}
 		} else {
-			pick = next_index(distances.size());
+			pick = static_cast<input_size_t>(canonical() * static_cast<double>(data.size()));
+			if (pick >= data.size()) { pick = data.size() - 1; }
 		}
 		means.push_back(data[pick]);
 	}
